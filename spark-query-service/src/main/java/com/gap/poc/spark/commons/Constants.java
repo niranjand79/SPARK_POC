@@ -1,4 +1,4 @@
-package com.gap.poc.spark.constants;
+package com.gap.poc.spark.commons;
 
 public class Constants {
 

@@ -13,7 +13,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
-import com.gap.poc.spark.constants.Constants;
+import com.gap.poc.spark.commons.Constants;
 import com.gap.poc.spark.exception.SparkPocServiceException;
 
 /**
