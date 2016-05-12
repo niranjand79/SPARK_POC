@@ -1,5 +1,11 @@
 package com.gap.poc.spark.commons;
 
+/**
+ * This class contains constants used across the module.
+ * 
+ * @author NIS1657-mbp
+ *
+ */
 public class Constants {
 
 	public static final String SPARK_VM_URL = "http://192.168.99.100:3000/v1/contexts/mycontext";

@@ -18,6 +18,12 @@ import com.gap.poc.spark.commons.Constants;
 import com.gap.poc.spark.commons.Utilities;
 import com.gap.poc.spark.exception.SparkPocServiceException;
 
+/**
+ * This class contains methods for CSV file operations.
+ * 
+ * @author NIS1657-mbp
+ *
+ */
 @Component
 public class CSVOperations {
 
@@ -34,6 +40,19 @@ public class CSVOperations {
 
 	}
 
+	/**
+	 * This methods loads the csv file passed as an input using already acquired
+	 * session id and applies the filter criteria
+	 * 
+	 * @param fileName
+	 *            data file
+	 * @param filter
+	 *            query parameters
+	 * @param sessionId
+	 *            session id
+	 * @return filtered output data
+	 * @throws SparkPocServiceException
+	 */
 	public String loadCSV(String fileName, String filter, String sessionId) throws SparkPocServiceException {
 		// create json for POST request
 		JSONObject jsonObject = new JSONObject();
@@ -92,6 +111,9 @@ public class CSVOperations {
 			throw new SparkPocServiceException("Error while applying filter " + filter, e);
 		}
 		try {
+			if (filterResponse.getStatusLine().getStatusCode() != 200) {
+				throw new SparkPocServiceException("Error while filtering data from csv file");
+			}
 			return IOUtils.toString(filterResponse.getEntity().getContent());
 		} catch (IOException e) {
 			// log.error("Error while parsing response from the context", e);

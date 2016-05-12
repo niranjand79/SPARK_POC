@@ -1,7 +1,4 @@
-/**
- * This class contains method to create return spark session.
- * @date 05-10-2016
- */
+
 package com.gap.poc.spark.connector;
 
 import org.json.JSONObject;
@@ -12,6 +9,12 @@ import com.gap.poc.spark.exception.SparkPocServiceException;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Implementation of ISparkConnector interface to return the session
+ * 
+ * @author NIS1657-mbp
+ *
+ */
 @Slf4j
 @Service
 public class SparkConnectorImpl implements ISparkConnector {
