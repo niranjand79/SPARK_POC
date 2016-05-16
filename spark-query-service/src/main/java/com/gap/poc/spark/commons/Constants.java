@@ -16,4 +16,8 @@ public class Constants {
 	public static final String CONTENT_TYPE_JSON = "application/json";
 	public static final String SPARK_SESSION_URL = "http://192.168.99.100:3000/v1/contexts/mycontext/sessions";
 	public static final String SPARK_LOAD_CSV_BASE_URL = "http://192.168.99.100:3000/v1/contexts/mycontext/sessions/";
+	public static final String QUERY_JSON = "{"
+			+ "\"code\": [\"var people = sqlContext.read().format('com.databricks.spark.csv').option('header', 'true').option('inferSchema', 'true').option('delimiter', ',').load(getFileById('<fileName>.csv'))\","
+			+ "\"people.registerTempTable('DUMMYTABLE')\",\"var result = sqlContext.sql('<sqlQuery>')\"],\"return\": \"result\"}";
+	public static final String SQL_QUERY_SELECT = "SELECT <columnNames> FROM DUMMYTABLE";
 }

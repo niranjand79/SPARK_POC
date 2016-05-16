@@ -6,10 +6,14 @@ import java.io.UnsupportedEncodingException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +39,29 @@ public class SparkHelper {
 	public String getSparkSession() throws SparkPocServiceException {
 		getSparkContext();
 		HttpClient httpClient = HttpClientBuilder.create().build();
+		HttpGet getRequest = new HttpGet(Constants.SPARK_SESSION_URL);
+		HttpResponse getResponse = null;
+		try {
+			getResponse = httpClient.execute(getRequest);
+		} catch (ClientProtocolException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		try {
+			JSONObject responseObj = new JSONObject(IOUtils.toString(getResponse.getEntity().getContent()));
+			if (responseObj.getInt("sessionsCount") != 0) {
+				JSONArray sessionsArray = responseObj.getJSONArray("sessions");
+				JSONObject sessionObject = sessionsArray.getJSONObject(0);
+				return sessionObject.getString("id");
+			}
+		} catch (JSONException e1) {
+			e1.printStackTrace();
+		} catch (UnsupportedOperationException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 		HttpPost request = new HttpPost(Constants.SPARK_SESSION_URL);
 		request.setHeader("Content-type", Constants.CONTENT_TYPE_JSON);
 		HttpResponse response = null;
@@ -46,7 +73,9 @@ public class SparkHelper {
 			throw new SparkPocServiceException("Error while executing request for getting the session", e);
 		}
 		try {
-			return IOUtils.toString(response.getEntity().getContent());
+			JSONObject jsonObject = new JSONObject(IOUtils.toString(response.getEntity().getContent()));
+			JSONObject session = jsonObject.getJSONObject("session");
+			return session.getString("id");
 		} catch (IOException e) {
 			// log.error("Error while parsing response from the session", e);
 			throw new SparkPocServiceException("Error while parsing response from the session", e);

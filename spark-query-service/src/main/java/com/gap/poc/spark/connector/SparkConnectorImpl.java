@@ -1,13 +1,10 @@
 
 package com.gap.poc.spark.connector;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gap.poc.spark.exception.SparkPocServiceException;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Implementation of ISparkConnector interface to return the session
@@ -15,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author NIS1657-mbp
  *
  */
-@Slf4j
+// @Slf4j
 @Service
 public class SparkConnectorImpl implements ISparkConnector {
 
@@ -24,9 +21,11 @@ public class SparkConnectorImpl implements ISparkConnector {
 
 	@Override
 	public String getSparkSessionId() throws SparkPocServiceException {
-		JSONObject jsonObject = new JSONObject(this.sparkHelper.getSparkSession());
-		JSONObject session = jsonObject.getJSONObject("session");
-		return session.getString("id");
+		// JSONObject jsonObject = new
+		// JSONObject(this.sparkHelper.getSparkSession());
+		// JSONObject session = jsonObject.getJSONObject("session");
+		// return session.getString("id");
+		return this.sparkHelper.getSparkSession();
 	}
 
 }

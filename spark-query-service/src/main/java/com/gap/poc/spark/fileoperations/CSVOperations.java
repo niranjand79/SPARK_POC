@@ -30,12 +30,55 @@ public class CSVOperations {
 	@Autowired
 	private Utilities utilities;
 
-	public String getData(String fileName, String filter, String sessionId) {
-
+	public String getData(final String sessionId, final String tableName, final String columnNames,
+			final String filterCondition) {
 		try {
-			return loadCSV(fileName, filter, sessionId);
+			loadCSV(sessionId, tableName);
+			return executeQuery(sessionId, tableName, columnNames, filterCondition);
 		} catch (SparkPocServiceException e) {
-			return this.utilities.handleBadRequest("Unable to load csv file", e).toString();
+			return this.utilities.handleBadRequest("Error while retrieving the data", e).toString();
+		}
+
+	}
+
+	public String executeQuery(final String sessionId, final String fileName, final String columnNames,
+			final String filterCondition) throws SparkPocServiceException {
+
+		// create a POST request to apply filer
+		String sqlQuery = this.utilities.SQLBuilder(columnNames, filterCondition);
+		JSONObject queryJson = new JSONObject(
+				Constants.QUERY_JSON.replace("<sqlQuery>", sqlQuery).replace("<fileName>", fileName));
+		// queryJson.put(Constants.QUERY_JSON);
+		StringEntity filterEntity;
+		try {
+			filterEntity = new StringEntity(queryJson.toString());
+		} catch (UnsupportedEncodingException e) {
+			// log.error("Error while creating request context", e);
+			throw new SparkPocServiceException("Error while forming request JSON to filer csv file " + fileName, e);
+		}
+		StringBuilder uriBuilder = new StringBuilder(Constants.SPARK_LOAD_CSV_BASE_URL);
+		uriBuilder.append(sessionId);
+		uriBuilder.append("/statements");
+		HttpPost filterRequest = new HttpPost(uriBuilder.toString());
+		filterRequest.setHeader("Content-type", Constants.CONTENT_TYPE_JSON);
+		filterRequest.setEntity(filterEntity);
+		HttpClient httpClient = HttpClientBuilder.create().build();
+		HttpResponse filterResponse = null;
+		try {
+			filterResponse = httpClient.execute(filterRequest);
+		} catch (IOException e) {
+			// log.error(
+			// "Error while executing request for creating the context", e);
+			throw new SparkPocServiceException("Error while executing request to query the table", e);
+		}
+		try {
+			if (filterResponse.getStatusLine().getStatusCode() != 200) {
+				throw new SparkPocServiceException("Error while filtering data from csv file");
+			}
+			return IOUtils.toString(filterResponse.getEntity().getContent());
+		} catch (IOException e) {
+			// log.error("Error while parsing response from the context", e);
+			throw new SparkPocServiceException("Error while parsing response from the filter request", e);
 		}
 
 	}
@@ -53,13 +96,13 @@ public class CSVOperations {
 	 * @return filtered output data
 	 * @throws SparkPocServiceException
 	 */
-	public String loadCSV(String fileName, String filter, String sessionId) throws SparkPocServiceException {
+	private void loadCSV(String sessionId, final String tableName) throws SparkPocServiceException {
 		// create json for POST request
 		JSONObject jsonObject = new JSONObject();
 		JSONArray jsonArray = new JSONArray();
 		jsonArray.put(0,
 				"var cars = sqlContext.read().format('com.databricks.spark.csv').option('header', 'true').option('inferSchema', 'true').option('delimiter', ',').load(getFileById('"
-						+ fileName + "'))");
+						+ tableName + ".csv'))");
 		jsonObject.put("return", "cars.schema()");
 		jsonObject.put("code", jsonArray);
 		StringEntity entity;
@@ -67,7 +110,7 @@ public class CSVOperations {
 			entity = new StringEntity(jsonObject.toString());
 		} catch (UnsupportedEncodingException e) {
 			// log.error("Error while creating request context", e);
-			throw new SparkPocServiceException("Error while forming request JSON to load csv file " + fileName, e);
+			throw new SparkPocServiceException("Error while forming request JSON to load csv file " + tableName, e);
 		}
 		// create post request to load the file
 		StringBuilder uriBuilder = new StringBuilder(Constants.SPARK_LOAD_CSV_BASE_URL);
@@ -83,41 +126,12 @@ public class CSVOperations {
 		} catch (IOException e) {
 			// log.error(
 			// "Error while executing request for creating the context", e);
-			throw new SparkPocServiceException("Error while loading csv file " + fileName, e);
+			throw new SparkPocServiceException("Error while loading csv file " + tableName, e);
 		}
 		if (response.getStatusLine().getStatusCode() != 200) {
 			throw new SparkPocServiceException("Error while loading csv file from spark server");
 		}
 
-		// create a POST request to apply filer
-		JSONObject filterJson = new JSONObject();
-		filterJson.put("return", filter);
-		StringEntity filterEntity;
-		try {
-			filterEntity = new StringEntity(filterJson.toString());
-		} catch (UnsupportedEncodingException e) {
-			// log.error("Error while creating request context", e);
-			throw new SparkPocServiceException("Error while forming request JSON to filer csv file " + fileName, e);
-		}
-		HttpPost filterRequest = new HttpPost(uriBuilder.toString());
-		filterRequest.setHeader("Content-type", Constants.CONTENT_TYPE_JSON);
-		filterRequest.setEntity(filterEntity);
-		HttpResponse filterResponse = null;
-		try {
-			filterResponse = httpClient.execute(filterRequest);
-		} catch (IOException e) {
-			// log.error(
-			// "Error while executing request for creating the context", e);
-			throw new SparkPocServiceException("Error while applying filter " + filter, e);
-		}
-		try {
-			if (filterResponse.getStatusLine().getStatusCode() != 200) {
-				throw new SparkPocServiceException("Error while filtering data from csv file");
-			}
-			return IOUtils.toString(filterResponse.getEntity().getContent());
-		} catch (IOException e) {
-			// log.error("Error while parsing response from the context", e);
-			throw new SparkPocServiceException("Error while parsing response from the filter request", e);
-		}
 	}
+
 }

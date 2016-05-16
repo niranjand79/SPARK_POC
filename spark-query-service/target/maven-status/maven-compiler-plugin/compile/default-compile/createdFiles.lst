@@ -1,8 +1,9 @@
+com/gap/poc/spark/commons/Utilities.class
 com/gap/poc/spark/connector/SparkConnectorImpl.class
 com/gap/poc/spark/fileoperations/CSVOperations.class
 com/gap/poc/spark/controller/QueryController.class
+com/gap/poc/spark/commons/Constants.class
 com/gap/poc/spark/connector/SparkHelper.class
 com/gap/poc/spark/main/Application.class
 com/gap/poc/spark/connector/ISparkConnector.class
-com/gap/poc/spark/constants/Constants.class
 com/gap/poc/spark/exception/SparkPocServiceException.class
