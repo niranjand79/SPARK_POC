@@ -26,43 +26,15 @@ public class QueryController {
 	private ISparkConnector sparkConnector;
 	@Autowired
 	private CSVOperations csvOperations;
-	// @Autowired
-	// private Utilities utilities;
-
-	// @RequestMapping(value = "/query", method = RequestMethod.POST)
-	// public String loadCsv(@RequestBody String requestJson) throws
-	// SparkPocServiceException {
-	// JSONObject jsonObject = null;
-	// try {
-	// jsonObject = new JSONObject(requestJson);
-	// } catch (JSONException e) {
-	// return this.utilities.handleBadRequest("Request JSON is invalid",
-	// e).toString();
-	// }
-	// String sessionId = this.sparkConnector.getSparkSessionId();
-	// return "Hello!";
-	// // return this.csvOperations.getData(jsonObject.getString("fileName"),
-	// // jsonObject.getString("query"), sessionId);
-	// }
 
 	@RequestMapping(value = "/query", method = RequestMethod.GET, produces = "application/json")
 
 	public String loadCsv(@RequestParam(value = "tableName", required = true) String tableName,
 			@RequestParam(value = "columnNames", required = false) String columnNames,
-			@RequestParam(value = "filter", required = false) String filterCondition)
-			throws SparkPocServiceException {
-
-		// } catch (Exception e) {
-		// return this.utilities.handleBadRequest("Request JSON is invalid",
-		// e).toString();
-		// }
+			@RequestParam(value = "filter", required = false) String filterCondition) throws SparkPocServiceException {
 		String sessionId = this.sparkConnector.getSparkSessionId();
 
 		return this.csvOperations.getData(sessionId, tableName, columnNames, filterCondition);
 	}
-	// @RequestMapping("/")
-	// String home() {
-	// return "Hello World!";
-	// }
 
 }

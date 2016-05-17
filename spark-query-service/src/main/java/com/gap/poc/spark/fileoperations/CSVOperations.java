@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.gap.poc.spark.commons.Constants;
 import com.gap.poc.spark.commons.Utilities;
+import com.gap.poc.spark.connector.SparkHelper;
 import com.gap.poc.spark.exception.SparkPocServiceException;
 
 /**
@@ -29,6 +30,8 @@ public class CSVOperations {
 
 	@Autowired
 	private Utilities utilities;
+	@Autowired
+	private SparkHelper sparkHelper;
 
 	public String getData(final String sessionId, final String tableName, final String columnNames,
 			final String filterCondition) {
@@ -48,7 +51,6 @@ public class CSVOperations {
 		String sqlQuery = this.utilities.SQLBuilder(columnNames, filterCondition);
 		JSONObject queryJson = new JSONObject(
 				Constants.QUERY_JSON.replace("<sqlQuery>", sqlQuery).replace("<fileName>", fileName));
-		// queryJson.put(Constants.QUERY_JSON);
 		StringEntity filterEntity;
 		try {
 			filterEntity = new StringEntity(queryJson.toString());
@@ -67,8 +69,6 @@ public class CSVOperations {
 		try {
 			filterResponse = httpClient.execute(filterRequest);
 		} catch (IOException e) {
-			// log.error(
-			// "Error while executing request for creating the context", e);
 			throw new SparkPocServiceException("Error while executing request to query the table", e);
 		}
 		try {
@@ -124,11 +124,14 @@ public class CSVOperations {
 		try {
 			response = httpClient.execute(request);
 		} catch (IOException e) {
-			// log.error(
-			// "Error while executing request for creating the context", e);
+			// kill the context
+			System.out.println("Deleting....");
+			this.sparkHelper.deleteSparkContext();
 			throw new SparkPocServiceException("Error while loading csv file " + tableName, e);
 		}
 		if (response.getStatusLine().getStatusCode() != 200) {
+			System.out.println("Deleting context");
+			this.sparkHelper.deleteSparkContext();
 			throw new SparkPocServiceException("Error while loading csv file from spark server");
 		}
 

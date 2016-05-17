@@ -8,6 +8,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -106,13 +107,29 @@ public class SparkHelper {
 		try {
 			response = httpClient.execute(request);
 		} catch (IOException e) {
-			// log.error(
-			// "Error while executing request for creating the context", e);
 			throw new SparkPocServiceException("Error while executing request for creating the context", e);
 		}
-		// return IOUtils.toString(response.getEntity().getContent());
-		if (response.getStatusLine().getStatusCode() != 200)
+		if (response.getStatusLine().getStatusCode() != 200 && response.getStatusLine().getStatusCode() != 201 )
 			throw new SparkPocServiceException("Error while creating the spark context");
+	}
+
+	/**
+	 * This methods deletes the spark context
+	 * @throws SparkPocServiceException
+	 */
+	public void deleteSparkContext() throws SparkPocServiceException {
+		HttpClient httpClient = HttpClientBuilder.create().build();
+		HttpDelete request = new HttpDelete(Constants.SPARK_VM_URL);
+		request.setHeader("Content-type", Constants.CONTENT_TYPE_JSON);
+		HttpResponse response = null;
+		try {
+			response = httpClient.execute(request);
+		} catch (IOException e) {
+			throw new SparkPocServiceException("Error while executing request for deleting the context", e);
+		}
+		if (response.getStatusLine().getStatusCode() != 200)
+			throw new SparkPocServiceException("Error while deleting the spark context");
+
 	}
 
 }

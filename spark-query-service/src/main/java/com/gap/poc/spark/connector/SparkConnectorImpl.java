@@ -21,10 +21,6 @@ public class SparkConnectorImpl implements ISparkConnector {
 
 	@Override
 	public String getSparkSessionId() throws SparkPocServiceException {
-		// JSONObject jsonObject = new
-		// JSONObject(this.sparkHelper.getSparkSession());
-		// JSONObject session = jsonObject.getJSONObject("session");
-		// return session.getString("id");
 		return this.sparkHelper.getSparkSession();
 	}
 
