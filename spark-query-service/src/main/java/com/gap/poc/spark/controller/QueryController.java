@@ -33,7 +33,6 @@ public class QueryController {
 			@RequestParam(value = "columnNames", required = false) String columnNames,
 			@RequestParam(value = "filter", required = false) String filterCondition) throws SparkPocServiceException {
 		String sessionId = this.sparkConnector.getSparkSessionId();
-
 		return this.csvOperations.getData(sessionId, tableName, columnNames, filterCondition);
 	}
 

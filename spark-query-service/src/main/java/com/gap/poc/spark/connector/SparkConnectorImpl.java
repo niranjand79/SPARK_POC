@@ -12,7 +12,6 @@ import com.gap.poc.spark.exception.SparkPocServiceException;
  * @author NIS1657-mbp
  *
  */
-// @Slf4j
 @Service
 public class SparkConnectorImpl implements ISparkConnector {
 

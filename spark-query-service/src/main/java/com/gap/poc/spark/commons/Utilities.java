@@ -39,7 +39,7 @@ public class Utilities {
 		if (StringUtils.isEmpty(columnNames)) {
 			return sqlBuilder.toString().replace("<columnNames>", "*");
 		} else {
-			return sqlBuilder.toString().replace("<columnNames>", columnNames);
+			return sqlBuilder.append("LIMIT 1000000").toString().replace("<columnNames>", columnNames);
 		}
 	}
 

@@ -100,7 +100,7 @@ public class SparkHelper {
 			// log.error("Error while creating request context", e);
 			throw new SparkPocServiceException("Error while creating request context", e);
 		}
-		HttpPost request = new HttpPost(Constants.SPARK_VM_URL);
+		HttpPost request = new HttpPost(Constants.SPARK_CONTEXT_URL);
 		request.setHeader("Content-type", Constants.CONTENT_TYPE_JSON);
 		request.setEntity(entity);
 		HttpResponse response = null;
@@ -109,26 +109,29 @@ public class SparkHelper {
 		} catch (IOException e) {
 			throw new SparkPocServiceException("Error while executing request for creating the context", e);
 		}
-		if (response.getStatusLine().getStatusCode() != 200 && response.getStatusLine().getStatusCode() != 201 )
+		if (response.getStatusLine().getStatusCode() != 200 && response.getStatusLine().getStatusCode() != 201)
 			throw new SparkPocServiceException("Error while creating the spark context");
 	}
 
 	/**
 	 * This methods deletes the spark context
+	 * 
 	 * @throws SparkPocServiceException
 	 */
-	public void deleteSparkContext() throws SparkPocServiceException {
+	public void deleteSparkSession(final String sessionId) throws SparkPocServiceException {
+		StringBuilder uriBuilder = new StringBuilder(Constants.SPARK_SESSION_URL);
+		uriBuilder.append(sessionId);
 		HttpClient httpClient = HttpClientBuilder.create().build();
-		HttpDelete request = new HttpDelete(Constants.SPARK_VM_URL);
+		HttpDelete request = new HttpDelete(uriBuilder.toString());
 		request.setHeader("Content-type", Constants.CONTENT_TYPE_JSON);
 		HttpResponse response = null;
 		try {
 			response = httpClient.execute(request);
 		} catch (IOException e) {
-			throw new SparkPocServiceException("Error while executing request for deleting the context", e);
+			throw new SparkPocServiceException("Error while executing request for deleting the session", e);
 		}
 		if (response.getStatusLine().getStatusCode() != 200)
-			throw new SparkPocServiceException("Error while deleting the spark context");
+			throw new SparkPocServiceException("Error while deleting the spark session");
 
 	}
 

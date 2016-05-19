@@ -9,14 +9,12 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.gap.poc.spark.commons.Constants;
 import com.gap.poc.spark.commons.Utilities;
-import com.gap.poc.spark.connector.SparkHelper;
 import com.gap.poc.spark.exception.SparkPocServiceException;
 
 /**
@@ -30,13 +28,10 @@ public class CSVOperations {
 
 	@Autowired
 	private Utilities utilities;
-	@Autowired
-	private SparkHelper sparkHelper;
 
 	public String getData(final String sessionId, final String tableName, final String columnNames,
 			final String filterCondition) {
 		try {
-			loadCSV(sessionId, tableName);
 			return executeQuery(sessionId, tableName, columnNames, filterCondition);
 		} catch (SparkPocServiceException e) {
 			return this.utilities.handleBadRequest("Error while retrieving the data", e).toString();
@@ -79,60 +74,6 @@ public class CSVOperations {
 		} catch (IOException e) {
 			// log.error("Error while parsing response from the context", e);
 			throw new SparkPocServiceException("Error while parsing response from the filter request", e);
-		}
-
-	}
-
-	/**
-	 * This methods loads the csv file passed as an input using already acquired
-	 * session id and applies the filter criteria
-	 * 
-	 * @param fileName
-	 *            data file
-	 * @param filter
-	 *            query parameters
-	 * @param sessionId
-	 *            session id
-	 * @return filtered output data
-	 * @throws SparkPocServiceException
-	 */
-	private void loadCSV(String sessionId, final String tableName) throws SparkPocServiceException {
-		// create json for POST request
-		JSONObject jsonObject = new JSONObject();
-		JSONArray jsonArray = new JSONArray();
-		jsonArray.put(0,
-				"var cars = sqlContext.read().format('com.databricks.spark.csv').option('header', 'true').option('inferSchema', 'true').option('delimiter', ',').load(getFileById('"
-						+ tableName + ".csv'))");
-		jsonObject.put("return", "cars.schema()");
-		jsonObject.put("code", jsonArray);
-		StringEntity entity;
-		try {
-			entity = new StringEntity(jsonObject.toString());
-		} catch (UnsupportedEncodingException e) {
-			// log.error("Error while creating request context", e);
-			throw new SparkPocServiceException("Error while forming request JSON to load csv file " + tableName, e);
-		}
-		// create post request to load the file
-		StringBuilder uriBuilder = new StringBuilder(Constants.SPARK_LOAD_CSV_BASE_URL);
-		uriBuilder.append(sessionId);
-		uriBuilder.append("/statements");
-		HttpClient httpClient = HttpClientBuilder.create().build();
-		HttpPost request = new HttpPost(uriBuilder.toString());
-		request.setHeader("Content-type", Constants.CONTENT_TYPE_JSON);
-		request.setEntity(entity);
-		HttpResponse response = null;
-		try {
-			response = httpClient.execute(request);
-		} catch (IOException e) {
-			// kill the context
-			System.out.println("Deleting....");
-			this.sparkHelper.deleteSparkContext();
-			throw new SparkPocServiceException("Error while loading csv file " + tableName, e);
-		}
-		if (response.getStatusLine().getStatusCode() != 200) {
-			System.out.println("Deleting context");
-			this.sparkHelper.deleteSparkContext();
-			throw new SparkPocServiceException("Error while loading csv file from spark server");
 		}
 
 	}
