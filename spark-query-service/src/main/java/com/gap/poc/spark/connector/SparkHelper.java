@@ -94,7 +94,8 @@ public class SparkHelper {
 		HttpClient httpClient = HttpClientBuilder.create().build();
 		StringEntity entity;
 		try {
-			JSONObject jsonObject = new JSONObject(new JSONObject(Constants.SPARK_CONTEXT_REQUEST));
+			JSONObject jsonObject = new JSONObject(Constants.SPARK_CONTEXT_REQUEST);
+			System.out.println(jsonObject.toString());
 			entity = new StringEntity(jsonObject.toString());
 		} catch (UnsupportedEncodingException e) {
 			// log.error("Error while creating request context", e);
@@ -106,6 +107,7 @@ public class SparkHelper {
 		HttpResponse response = null;
 		try {
 			response = httpClient.execute(request);
+			System.out.println(IOUtils.toString(response.getEntity().getContent()));
 		} catch (IOException e) {
 			throw new SparkPocServiceException("Error while executing request for creating the context", e);
 		}
