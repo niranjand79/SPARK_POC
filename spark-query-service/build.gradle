@@ -1,7 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'war'
-apply plugin: 'application'
 apply plugin: 'spring-boot'
 
 repositories {
@@ -12,9 +9,6 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-		compile("org.springframework.boot:spring-boot-starter-web:1.3.3.RELEASE")
-		compile("org.springframework.boot:spring-boot-gradle-plugin:1.3.3.RELEASE")
-		compile("org.springframework.boot:spring-boot:1.3.3.RELEASE")
 		compile("org.springframework.boot:spring-boot-starter-thymeleaf")	
 		compile("org.springframework.boot:spring-boot-starter-actuator")	
 	    compile 'org.json:json:20140107'
@@ -23,18 +17,14 @@ dependencies {
 	    compile 'com.databricks:spark-csv_2.10:1.0.3'
 }
 
-jar {
-    baseName = 'csv-reader'
-    version =  '0.1.0'
-}
 
 buildscript {
 	repositories {
 	    mavenCentral()
 }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.3.RELEASE")
-        classpath("org.springframework.boot:spring-boot-starter-web:1.3.3.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.5.RELEASE")
+        classpath("org.springframework.boot:spring-boot-starter-web:1.3.5.RELEASE")
     }
 }
 
@@ -45,8 +35,6 @@ task(runApp,dependsOn: 'classes', type: JavaExec) {
 
 defaultTasks 'runApp'
 
-mainClassName = 'com.poc.spark.main.Application'
-
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.3'
+    gradleVersion = '2.13'
 }
