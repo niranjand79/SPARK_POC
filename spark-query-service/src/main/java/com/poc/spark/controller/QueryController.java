@@ -28,7 +28,6 @@ public class QueryController {
 	private CSVOperations csvOperations;
 
 	@RequestMapping(value = "/query", method = RequestMethod.GET, produces = "application/json")
-
 	public String loadCsv(@RequestParam(value = "tableName", required = true) String tableName,
 			@RequestParam(value = "columnNames", required = false) String columnNames,
 			@RequestParam(value = "filter", required = false) String filterCondition) throws SparkPocServiceException {
